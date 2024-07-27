@@ -3,8 +3,8 @@ package main
 import (
 	"fmt"
 
-	"github.com/gocolly/colly/v2"
-	"github.com/gocolly/colly/v2/queue"
+	"github.com/chinese-room-solutions/colly"
+	"github.com/chinese-room-solutions/colly/queue"
 )
 
 func main() {

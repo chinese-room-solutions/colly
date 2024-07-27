@@ -40,8 +40,8 @@ import (
 	"github.com/PuerkitoBio/goquery"
 	"github.com/antchfx/htmlquery"
 	"github.com/antchfx/xmlquery"
-	"github.com/gocolly/colly/v2/debug"
-	"github.com/gocolly/colly/v2/storage"
+	"github.com/chinese-room-solutions/colly/debug"
+	"github.com/chinese-room-solutions/colly/storage"
 	"github.com/kennygrant/sanitize"
 	whatwgUrl "github.com/nlnwa/whatwg-url/url"
 	"github.com/temoto/robotstxt"
@@ -152,7 +152,7 @@ type HTMLCallback func(*HTMLElement)
 type XMLCallback func(*XMLElement)
 
 // ErrorCallback is a type alias for OnError callback functions
-type ErrorCallback func(*Response, error)
+type ErrorCallback func(*Response, *error)
 
 // ScrapedCallback is a type alias for OnScraped callback functions
 type ScrapedCallback func(*Response)
@@ -467,7 +467,7 @@ func CheckHead() CollectorOption {
 // Init initializes the Collector's private variables and sets default
 // configuration for the Collector
 func (c *Collector) Init() {
-	c.UserAgent = "colly - https://github.com/gocolly/colly/v2"
+	c.UserAgent = "colly - https://github.com/chinese-room-solutions/colly"
 	c.Headers = nil
 	c.MaxDepth = 0
 	c.MaxRequests = 0
@@ -712,7 +712,12 @@ func (c *Collector) fetch(u, method string, depth int, requestData io.Reader, ct
 	if proxyURL, ok := req.Context().Value(ProxyURLKey).(string); ok {
 		request.ProxyURL = proxyURL
 	}
-	if err := c.handleOnError(response, err, request, ctx); err != nil {
+	err = c.handleOnError(response, err, request, ctx)
+	if err != nil {
+		for _, f := range c.errorCallbacks {
+			// Allow to override the error in the callback.
+			f(response, &err)
+		}
 		return err
 	}
 	atomic.AddUint32(&c.responseCount, 1)
@@ -1256,9 +1261,6 @@ func (c *Collector) handleOnError(response *Response, err error, request *Reques
 	}
 	if response.Ctx == nil {
 		response.Ctx = request.Ctx
-	}
-	for _, f := range c.errorCallbacks {
-		f(response, err)
 	}
 	return err
 }

@@ -9,7 +9,7 @@ import (
 	"testing"
 	"time"
 
-	"github.com/gocolly/colly/v2"
+	"github.com/chinese-room-solutions/colly"
 )
 
 func TestQueue(t *testing.T) {
@@ -61,7 +61,7 @@ func TestQueue(t *testing.T) {
 			put()
 		}
 	})
-	c.OnError(func(resp *colly.Response, err error) {
+	c.OnError(func(resp *colly.Response, err *error) {
 		atomic.AddUint32(&failure, 1)
 	})
 	err = q.Run(c)

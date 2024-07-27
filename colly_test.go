@@ -32,7 +32,7 @@ import (
 
 	"github.com/PuerkitoBio/goquery"
 
-	"github.com/gocolly/colly/v2/debug"
+	"github.com/chinese-room-solutions/colly/debug"
 )
 
 var serverIndexResponse = []byte("hello world\n")
@@ -1261,7 +1261,7 @@ func TestEnvSettings(t *testing.T) {
 func TestUserAgent(t *testing.T) {
 	const exampleUserAgent1 = "Example/1.0"
 	const exampleUserAgent2 = "Example/2.0"
-	const defaultUserAgent = "colly - https://github.com/gocolly/colly/v2"
+	const defaultUserAgent = "colly - https://github.com/chinese-room-solutions/colly"
 
 	ts := newTestServer()
 	defer ts.Close()
@@ -1649,9 +1649,9 @@ func TestCollectorContext(t *testing.T) {
 		t.Error("OnResponse was called, expected OnError")
 	})
 
-	c.OnError(func(resp *Response, err error) {
+	c.OnError(func(resp *Response, err *error) {
 		onErrorCalled = true
-		if err != context.DeadlineExceeded {
+		if *err != context.DeadlineExceeded {
 			t.Errorf("OnError got err=%#v, expected context.DeadlineExceeded", err)
 		}
 	})
